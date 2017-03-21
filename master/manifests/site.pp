@@ -394,7 +394,6 @@ jenkins::plugin {
   'xunit': ;
 }
 
-
 ### Dependencies for Scripting
 
 # required by cleanup_docker_images.py
