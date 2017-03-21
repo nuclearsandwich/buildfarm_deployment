@@ -394,17 +394,6 @@ jenkins::plugin {
   'xunit': ;
 }
 
-# Packages required but not installed 2017-03-20
-
-jenkins::plugin {
-  'maven-plugin': ;
-}
-
-jenkins::plugin {
-  'conditional-buildstep': ;
-}
-
-
 ### Dependencies for Scripting
 
 # required by cleanup_docker_images.py
