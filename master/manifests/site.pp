@@ -397,15 +397,15 @@ jenkins::plugin {
 # Packages required but not installed 2017-03-20
 
 jenkins::plugin {
-  'workflow-step-api' ;
+  'workflow-step-api': ;
 }
 
 jenkins::plugin {
-  'maven-plugin' ;
+  'maven-plugin': ;
 }
 
 jenkins::plugin {
-  'conditional-buildstep' ;
+  'conditional-buildstep': ;
 }
 
 
