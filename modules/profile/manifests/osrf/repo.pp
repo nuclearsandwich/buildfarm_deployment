@@ -210,9 +210,7 @@ class profile::osrf::repo {
       require => User[$agent_username],
     }
 
-    notice('got here')
     # Pull reprepro updater
-    notice(hiera('jenkins-agent::reprepro_config'))
     if hiera('jenkins-agent::reprepro_config', false){
       create_resources(file, hiera('jenkins-agent::reprepro_config'))
     }
