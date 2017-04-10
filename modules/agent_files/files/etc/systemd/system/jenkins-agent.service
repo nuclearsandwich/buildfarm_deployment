@@ -4,6 +4,6 @@ After=network-online.target
 Requires=network-online.target
 
 [Service]
-ExecStart=/home/jenkins-agent/agent-runner
+ExecStart=/home/jenkins-agent/launch-jenkins-agent.sh
 Type=simple
 

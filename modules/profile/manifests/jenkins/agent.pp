@@ -126,12 +126,12 @@ class profile::jenkins::agent (
     source => 'puppet:///modules/agent_files/etc/systemd/system/jenkins-agent.service',
   }
 
-  # file { '/etc/systemd/system/jenkins-agent.service':
-  #   mode   => '0644',
-  #   owner  => 'root',
-  #   group  => 'root',
-  #   source => 'puppet:///modules/agent_files/etc/systemd/system/jenkins-agent.service',
-  # }
+  file { '/usr/local/bin/launch-jenkins-agent.sh':
+    mode   => '0755',
+    owner  => 'root',
+    group  => 'root',
+    source => 'puppet:///modules/agent_files/usr/local/bin/launch-jenkins-agent.sh',
+  }
 
 
   # clean up containers and dangling images https://github.com/docker/docker/issues/928#issuecomment-58619854
