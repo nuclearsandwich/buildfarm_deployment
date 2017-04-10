@@ -28,4 +28,5 @@ else{
 }
 
 include profile::osrf::base
+notice("Got to profile 2")
 include profile::osrf::repo
