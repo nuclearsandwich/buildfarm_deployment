@@ -117,6 +117,23 @@ class profile::jenkins::agent (
     require => User[$agent_username],
   }
 
+  # Use our own service unit and launch wrapper due to the lack of systemd on ubuntu support for puppet-jenkins
+  # https://github.com/jenkinsci/puppet-jenkins/issues/666
+  file { '/etc/systemd/system/jenkins-agent.service':
+    mode   => '0644',
+    owner  => 'root',
+    group  => 'root',
+    source => 'puppet:///modules/agent_files/etc/systemd/system/jenkins-agent.service',
+  }
+
+  # file { '/etc/systemd/system/jenkins-agent.service':
+  #   mode   => '0644',
+  #   owner  => 'root',
+  #   group  => 'root',
+  #   source => 'puppet:///modules/agent_files/etc/systemd/system/jenkins-agent.service',
+  # }
+
+
   # clean up containers and dangling images https://github.com/docker/docker/issues/928#issuecomment-58619854
   cron {'docker_cleanup_images':
     command => "bash -c \"python3 -u /home/${agent_username}/cleanup_docker_images.py --minimum-free-percent 10 --minimum-free-space 50\"",
