@@ -8,11 +8,11 @@ import fcntl
 import logging
 import psutil
 import sys
-import json
 import traceback
 
 from contextlib import contextmanager
 from requests.exceptions import Timeout
+
 
 @contextmanager
 def flocked(fd):
@@ -55,13 +55,13 @@ def print_progress(args):
 
 def run_image_cleanup(args, minimum_age, dclient):
     logging.info("cleaning up docker images")
-    images = dclient.images()
+    images = dclient.images.list()
 
-    #keep track of already tried images to avoid duplication
+    # keep track of already tried images to avoid duplication
     processed_images = set()
     for i in reversed(images):
-        dockerid = i['Id']
-        repo_tags = i['RepoTags'][0] if '<none>:<none>' not in i['RepoTags'] else dockerid
+        dockerid = i.id
+        repo_tags = i.attrs['RepoTags'][0] if i.attrs['RepoTags'] else dockerid
         if dockerid in processed_images:
             logging.info("already processed %s, continuing" % repo_tags)
             continue
@@ -70,13 +70,13 @@ def run_image_cleanup(args, minimum_age, dclient):
             break
         processed_images.add(dockerid)
         try:
-            info = dclient.inspect_image(dockerid)
+            info = dclient.api.inspect_image(dockerid)
             if docker_id_older(info, minimum_age):
                 logging.info("removing image %s by identifier %s" % (dockerid, repo_tags))
                 if args.dry_run:
                     logging.info("Dry run >> I would have removed image: %s" % repo_tags)
                 else:
-                    dclient.remove_image(repo_tags)
+                    dclient.images.remove(repo_tags)
                     logging.info("successfully removed image: %s" % repo_tags)
             else:
                 logging.info("skipped removal of image due to age: %s -- %s" % (info['Created'], repo_tags))
@@ -84,9 +84,6 @@ def run_image_cleanup(args, minimum_age, dclient):
             logging.info("APIError: failed to remove image %s Exception [%s]" % (repo_tags, ex))
         except Timeout as ex:
             logging.info("Timeout: failed to remove image %s Exception [%s]" % (repo_tags, ex))
-
-
-
         print_progress(args)
 
 
@@ -113,17 +110,17 @@ def main():
                         help='The minimum age of items to clean up in days.')
     parser.add_argument('--min-hours', type=int, default=10,
                         help='The minimum age of items to clean up in hours, added to days.')
-    parser.add_argument('--docker-api-version', type=str, default='1.16',
-                            help='The docker server API level.')
+    parser.add_argument('--docker-api-version', type=str, default='1.30',
+                        help='The docker server API level.')
     parser.add_argument('--dry-run', '-n', default=False,
                         action='store_true',
                         help='Do not actually clean up, just print to log.')
 
     args = parser.parse_args()
-    dclient = docker.Client(base_url='unix://var/run/docker.sock', version=args.docker_api_version)
+    dclient = docker.DockerClient(base_url='unix://var/run/docker.sock', version=args.docker_api_version)
     minimum_age = datetime.timedelta(days=args.min_days, hours=args.min_hours)
 
-    #initialize logging
+    # initialize logging
     logging.basicConfig(filename=args.logfile, format='%(asctime)s %(message)s',
                         level=logging.INFO)
     logging.info(">>>>>> Starting run of cleanup_docker_images.py arguments %s" % args)
